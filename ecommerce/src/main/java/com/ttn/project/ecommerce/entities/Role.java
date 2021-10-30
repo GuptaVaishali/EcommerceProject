@@ -11,10 +11,11 @@ public class Role {
     private long id;
     private String authority;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "User_Role",
-                joinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "id"),
-                inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "id"))
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(name = "User_Role",
+//                joinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "id"),
+//                inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "id"))
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL, fetch =FetchType.EAGER )
     private List<User> users;
 
     //getters and setters

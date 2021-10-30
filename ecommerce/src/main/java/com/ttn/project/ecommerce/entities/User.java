@@ -74,8 +74,15 @@ public class User extends Auditable<String> {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Address> addresses;
 
-    @ManyToMany(mappedBy = "users")
+    //@ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch =FetchType.EAGER )
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "User_Role",
+                joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "id"),
+                inverseJoinColumns = @JoinColumn(name = "ROlE_ID", referencedColumnName = "id"))
     private List<Role> roles;
+
+    @OneToOne(mappedBy = "user")
+    private Token token;
 
 //    //Getters and Setters
 //    public Long getId() {
