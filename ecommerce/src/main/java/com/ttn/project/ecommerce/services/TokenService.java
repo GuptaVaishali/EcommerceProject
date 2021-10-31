@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
@@ -67,7 +68,38 @@ public class TokenService {
         return newToken;
     }
 
+    public Token createForgotPasswordToken(String email){
+        String tokenValue = new String(Base64.encodeBase64URLSafe(DEFAULT_TOKEN_GENERATOR.generateKey()), US_ASCII); // this is a sample, you can adapt as per your security need
+        Token forgotPasswordToken = new Token(userRepo.findByEmail(email));
+        forgotPasswordToken.setForgotPassToken(tokenValue);
+        System.out.println("token value " + tokenValue);
+        forgotPasswordToken.setExpireAt(LocalDateTime.now().plusSeconds(999999999));
+        //    token.setExpireAt(LocalDateTime.now().plusSeconds(1l));
+        forgotPasswordToken.setEmail(email);
+        tokenRepo.save(forgotPasswordToken);
+        return forgotPasswordToken;
+    }
+
+    public String checkFpTokenValidity(String token){
+        System.out.println(">>>>> inside checkFpToken validiy function");
+        String str = null;
+        Token fpToken = tokenRepo.findByForgotPassToken(token);
+        System.out.println(">>>>>>>>>>>>> forgot password token value" + fpToken.getForgotPassToken());
+        if (fpToken == null){
+            str =  "Token is not valid";
+        }
+        else{
+            LocalDateTime now = LocalDateTime.now();
+            if(ChronoUnit.SECONDS.between(now, fpToken.getExpireAt()) <= 0){
+                str =  "Token has been expired";
+                tokenRepo.delete(fpToken);
+            }
+        }
+        return str;
+    }
 
 
-
+    public Token findTokenByForgetPasswordToken(String fpTokenVal){
+        return tokenRepo.findByForgotPassToken(fpTokenVal);
+    }
 }

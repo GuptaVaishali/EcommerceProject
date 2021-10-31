@@ -1,24 +1,29 @@
 package com.ttn.project.ecommerce.controllers;
 
+import com.ttn.project.ecommerce.entities.Customer;
+import com.ttn.project.ecommerce.entities.Token;
 import com.ttn.project.ecommerce.entities.User;
+import com.ttn.project.ecommerce.repos.UserRepository;
+import com.ttn.project.ecommerce.services.EmailSenderService;
+import com.ttn.project.ecommerce.services.TokenService;
 import com.ttn.project.ecommerce.services.UserDaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
 public class UserController {
 
-//    @Autowired
-//    UserDaoService userDaoService;
-//
 //    @GetMapping("/users")
 //    public List<User> retrieveAllEmployees() {
 //        return userDaoService.readAllUsers();
@@ -42,4 +47,70 @@ public class UserController {
 //
 //        return ResponseEntity.created(location).build();
 //    }
+
+    @Autowired
+    TokenService tokenService;
+
+    @Autowired
+    EmailSenderService emailSenderService;
+
+    @Autowired
+    UserDaoService userDaoService;
+
+    @Autowired
+    UserRepository userRepository;
+
+
+
+    // To get Forgot password token
+    @PostMapping("/forgot-password-token")
+    public String sendForgotPasswordLink(@Valid @RequestParam String email){
+        String str = userDaoService.checkEmail(email);
+        if (str == null) {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(email);
+            mailMessage.setSubject("Forgot Password Token");
+            mailMessage.setFrom("vaishgupta97@gmail.com");
+            mailMessage.setText("To change your password, please click here : "
+                    + "http://localhost:8080/change-password?token=" +
+                    tokenService.createForgotPasswordToken(email).getForgotPassToken());
+
+            emailSenderService.sendEmail(mailMessage);
+
+            return "Please Check your mail to change password";
+        }
+        else
+            return str;
+    }
+
+    // to change user password
+    @PutMapping("/change-password")
+    public String changePassword(@RequestParam("token") String fpToken,
+                                     @RequestParam("password") String password,
+                                     @RequestParam("confirmPassword") String confirmPassword) {
+
+        String str = tokenService.checkFpTokenValidity(fpToken);
+        System.out.println("returned String value >>>> " + str);
+        if (str == null) {
+            System.out.println(">>>>>>>>>>>>> if token is valid");
+            Token token = tokenService.findTokenByForgetPasswordToken(fpToken);
+            if (token != null) {
+                System.out.println(">>>>>>>>>>>> if user exists having fp token");
+                userDaoService.changeUserPassword(token.getUser(),password);
+
+                System.out.println(">>>>>>>>>>>>> Password changed");
+
+                SimpleMailMessage mailMessage = new SimpleMailMessage();
+                mailMessage.setTo(token.getUser().getEmail());
+                mailMessage.setSubject("Password Updated");
+                mailMessage.setFrom("vaishgupta97@gmail.com");
+                mailMessage.setText("Password updated Successfully");
+                emailSenderService.sendEmail(mailMessage);
+                return "Please check your mail to know password change status";
+            }
+            return "user does not exists having this token";
+        } else
+            return str;
+    }
+
 }

@@ -48,7 +48,8 @@ public class CustomerDaoService {
 //        System.out.println(">>>>>>>>>>>>>>>>>>>." + role.getAuthority());
 //        roles.add(role);
 
-        passwordEncoder.encode(customer.getPassword());
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        System.out.println(">>>>>>>>>>>>>  Password encoded " + passwordEncoder.encode(customer.getPassword()));
         Role role1 = new Role();
         role1.setAuthority("customer");
         roles.add(role1);
