@@ -1,5 +1,6 @@
 package com.ttn.project.ecommerce.entities;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.ttn.project.ecommerce.validations.Phone;
 
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "user_id")
+@JsonFilter("customerFilter")
 public class Customer extends User{
 
     @Column(name = "CONTACT")

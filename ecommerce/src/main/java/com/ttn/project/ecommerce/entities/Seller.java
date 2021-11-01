@@ -1,5 +1,6 @@
 package com.ttn.project.ecommerce.entities;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.ttn.project.ecommerce.validations.Gst;
 import com.ttn.project.ecommerce.validations.Phone;
 import com.ttn.project.ecommerce.validations.UniqueCompany;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "user_id")
+@JsonFilter("SellerFilter")
 public class Seller extends User{
 
     @Column(name = "GST")

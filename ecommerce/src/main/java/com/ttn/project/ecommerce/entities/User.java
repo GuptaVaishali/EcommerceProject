@@ -1,5 +1,6 @@
 package com.ttn.project.ecommerce.entities;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.ttn.project.ecommerce.auditing.Auditable;
 import com.ttn.project.ecommerce.validations.Password;
 import com.ttn.project.ecommerce.validations.PasswordMatches;

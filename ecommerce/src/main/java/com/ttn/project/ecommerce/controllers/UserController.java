@@ -1,5 +1,6 @@
 package com.ttn.project.ecommerce.controllers;
 
+import com.ttn.project.ecommerce.entities.Address;
 import com.ttn.project.ecommerce.entities.Customer;
 import com.ttn.project.ecommerce.entities.Token;
 import com.ttn.project.ecommerce.entities.User;
@@ -9,6 +10,7 @@ import com.ttn.project.ecommerce.services.TokenService;
 import com.ttn.project.ecommerce.services.UserDaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +26,12 @@ import java.util.List;
 @RestController
 public class UserController {
 
-//    @GetMapping("/users")
-//    public List<User> retrieveAllEmployees() {
-//        return userDaoService.readAllUsers();
-//    }
-//
-////    creating and returning same user
+    @GetMapping("/users")
+    public List<User> retrieveAllEmployees() {
+        return userDaoService.readAllUsers();
+    }
+
+//    creating and returning same user
 //    @PostMapping("/users")
 //    public User createUser(@RequestBody User user){
 //        System.out.println(user.getFirstName());
@@ -37,16 +39,17 @@ public class UserController {
 //        return savedUser;
 //    }
 
-    // creating employee and send response status created 201.
-//    @PostMapping("/users")
-//    public ResponseEntity<Object> createUser(@RequestBody User user){
-//        User savedUser = userDaoService.createUser(user);
-//        URI location = ServletUriComponentsBuilder
-//                .fromCurrentRequest().path("{id}")
-//                .buildAndExpand(savedUser.getId()).toUri();
-//
-//        return ResponseEntity.created(location).build();
-//    }
+
+//    creating employee and send response status created 201.
+    @PostMapping("/users")
+    public ResponseEntity<Object> createUser(@RequestBody User user){
+        User savedUser = userDaoService.createUser(user);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("{id}")
+                .buildAndExpand(savedUser.getId()).toUri();
+
+        return ResponseEntity.created(location).build();
+    }
 
     @Autowired
     TokenService tokenService;
@@ -56,10 +59,6 @@ public class UserController {
 
     @Autowired
     UserDaoService userDaoService;
-
-    @Autowired
-    UserRepository userRepository;
-
 
 
     // To get Forgot password token
@@ -90,15 +89,15 @@ public class UserController {
                                      @RequestParam("confirmPassword") String confirmPassword) {
 
         String str = tokenService.checkFpTokenValidity(fpToken);
-        System.out.println("returned String value >>>> " + str);
+//        System.out.println("returned String value >>>> " + str);
         if (str == null) {
-            System.out.println(">>>>>>>>>>>>> if token is valid");
+//            System.out.println(">>>>>>>>>>>>> if token is valid");
             Token token = tokenService.findTokenByForgetPasswordToken(fpToken);
             if (token != null) {
-                System.out.println(">>>>>>>>>>>> if user exists having fp token");
+//                System.out.println(">>>>>>>>>>>> if user exists having fp token");
                 userDaoService.changeUserPassword(token.getUser(),password);
 
-                System.out.println(">>>>>>>>>>>>> Password changed");
+//                System.out.println(">>>>>>>>>>>>> Password changed");
 
                 SimpleMailMessage mailMessage = new SimpleMailMessage();
                 mailMessage.setTo(token.getUser().getEmail());
@@ -112,5 +111,44 @@ public class UserController {
         } else
             return str;
     }
+
+    @GetMapping("/get-customers")
+    public MappingJacksonValue getCustomers(@RequestParam(name = "pageSize",required = false) String pageSize,
+                                            @RequestParam(name = "pageOffset" ,required = false) String pageOffset,
+                                            @RequestParam(name= "sortBy", required = false) String sortBy,
+                                            @RequestParam(name = "email" ,required = false) String email) {
+        return userDaoService.getCustomers(pageSize, pageOffset, sortBy,email);
+    }
+
+    @GetMapping("/get-sellers")
+    public MappingJacksonValue getSellers() {
+        return userDaoService.getSellers();
+    }
+
+    @PostMapping("/{userId}/create-address")
+    public String createAddress(@PathVariable long userId, @RequestBody Address address){
+        return userDaoService.createAddress(userId, address);
+    }
+
+    @PutMapping("/activate-customer")
+    public String activateCustomer(@RequestParam long custId){
+        return userDaoService.activateCustomer(custId);
+    }
+
+    @PutMapping("/deactivate-customer")
+    public String deActivateCustomer(@RequestParam long custId){
+        return userDaoService.deActivateCustomer(custId);
+    }
+
+    @PutMapping("/activate-seller")
+    public String activateSeller(@RequestParam long sellerId){
+        return userDaoService.activateSeller(sellerId);
+    }
+
+    @PutMapping("/deactivate-seller")
+    public String deActivateSeller(@RequestParam long sellerId){
+        return userDaoService.deActivateSeller(sellerId);
+    }
+
 
 }

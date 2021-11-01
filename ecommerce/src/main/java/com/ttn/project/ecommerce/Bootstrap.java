@@ -8,7 +8,7 @@ import com.ttn.project.ecommerce.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ public class Bootstrap implements ApplicationRunner {
     @Autowired
     UserRepository userRepository;
 
-//    @Autowired
-//    PasswordEncoder passwordEncoder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -46,34 +46,35 @@ public class Bootstrap implements ApplicationRunner {
 //        }
 
 
-//        if(userRepository.count()<1){
-//            User user = new User();
-//            user.setFirstName("Vaishali");
-//            user.setLastName("Gupta");
-//            user.setEmail("vaishaligupta982@gmail.com");
-//            user.setPassword( passwordEncoder.encode("Vaishali@123"));
-//
-//            List<Address> addresses = new ArrayList<>();
-//            Address address = new Address();
-//            address.setAddressLine("house no. 123");
-//            address.setCity("ballabgarh");
-//            address.setCountry("India");
-//            address.setLabel("home");
-//            address.setState("Haryana");
-//            address.setZipCode("121004");
-//            addresses.add(address);
-//            address.setUser(user);
-//            user.setAddresses(addresses);
-//
-//            Role role = new Role();
-//            role.setAuthority("Admin");
-//            List<Role> roles = new ArrayList<>();
-//            roles.add(role);
-//            user.setRoles(roles);
-//
-//            System.out.println("Total users saved::"+ userRepository.count());
+        if(userRepository.count()<1){
+            User user = new User();
+            user.setFirstName("Sreyasi");
+            user.setLastName("Raghu");
+            user.setEmail("sreaysi97@gmail.com");
+            user.setPassword( passwordEncoder.encode("admin@123"));
 
-//        }
+            List<Address> addresses = new ArrayList<>();
+            Address address = new Address();
+            address.setAddressLine("house no. 123");
+            address.setCity("faridabad");
+            address.setCountry("India");
+            address.setLabel("home");
+            address.setState("UP");
+            address.setZipCode("110063");
+            addresses.add(address);
+            address.setUser(user);
+            user.setAddresses(addresses);
+
+            Role role = new Role();
+            role.setAuthority("Admin");
+            List<Role> roles = new ArrayList<>();
+            roles.add(role);
+            user.setRoles(roles);
+
+            userRepository.save(user);
+            System.out.println("Total users saved::" + userRepository.count());
+
+        }
 
     }
 }
